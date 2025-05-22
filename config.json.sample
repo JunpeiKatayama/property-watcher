@@ -1,0 +1,40 @@
+{
+  "searchConditions": [
+    {
+      "name": "鴻巣市の4DK物件",
+      "prefecture": "埼玉県",
+      "city": "鴻巣市",
+      "minRent": 6,
+      "maxRent": 8,
+      "layouts": ["4DK", "4LDK"],
+      "maxWalkMinutes": 15,
+      "maxAgeYears": 30,
+      "hasParking": true,
+      "otherConditions": {
+        "bs": "040",
+        "ta": "11217"
+      }
+    },
+    {
+      "name": "行田駅周辺の物件",
+      "prefecture": "埼玉県",
+      "minRent": 5,
+      "maxRent": 7,
+      "layouts": ["3DK", "3LDK"],
+      "maxWalkMinutes": 10,
+      "otherConditions": {
+        "ek": "98287" 
+      }
+    }
+  ],
+  "lineConfig": {
+    "channelToken": "LINE_CHANNEL_TOKEN_HERE",
+    "userId": "LINE_USER_ID_HERE"
+  },
+  "dataStorePath": "data",
+  "scheduleConfig": {
+    "intervalHours": 12,
+    "startHour": 9,
+    "startMinute": 0
+  }
+} 

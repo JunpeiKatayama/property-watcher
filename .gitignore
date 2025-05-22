@@ -1,0 +1,28 @@
+# Kotlin/Gradle build
+/build/
+/.gradle/
+/bin/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# その他
+*.class
+*.jar
+
+# サンプルや設定ファイル
+config.json
+
+# VSCode
+.vscode/ 
