@@ -104,7 +104,8 @@ class SuumoScraper {
      */
     private fun parseHtml(html: String): List<Property> {
         val properties = mutableListOf<Property>()
-        val document = Jsoup.parse(html)
+        // ベースURLを指定してパース
+        val document = Jsoup.parse(html, "https://suumo.jp")
         
         // SUUMOの物件リスト要素を取得
         val propertyElements = document.select("div.cassetteitem")
@@ -149,8 +150,9 @@ class SuumoScraper {
                         val ageText = element.select("li.cassetteitem_detail-col3").text()
                         val ageYears = extractAge(ageText)
                         
-                        // URL
-                        val detailUrl = roomElement.select("td.cassetteitem_other a").attr("abs:href")
+                        // URL（最初の詳細ページリンクのみ取得）
+                        val detailLink = roomElement.select("td.ui-text--midium.ui-text--bold a.js-cassette_link_href").first()
+                        val detailUrl = detailLink?.attr("abs:href") ?: ""
                         
                         // 画像URL
                         val imageUrl = element.select("div.cassetteitem_object-item img").attr("abs:src")

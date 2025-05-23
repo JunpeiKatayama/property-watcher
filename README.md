@@ -92,6 +92,35 @@ cron に以下のような設定を追加します：
 0 9,21 * * * cd /path/to/property_watcher && java -jar build/libs/property_watcher-1.0-SNAPSHOT.jar
 ```
 
+## GCP Cloud Run Jobs でのデプロイ・定期実行
+
+Google Cloud Run Jobs と Cloud Scheduler を使って、バッチ処理をクラウド上で定期実行することも可能です。
+
+### デプロイ・定期実行の手順
+
+1. 必要に応じて `deploy_and_schedule.sh` 内の変数（`PROJECT_ID` など）を編集してください。
+2. 実行権限を付与します：
+   ```sh
+   chmod +x deploy_and_schedule.sh
+   ```
+3. スクリプトを実行します：
+   ```sh
+   ./deploy_and_schedule.sh
+   ```
+
+このスクリプトを実行するだけで、
+
+- Java アプリの fat jar ビルド
+- Docker イメージのビルド・push
+- Cloud Run Job の作成・更新
+- Cloud Scheduler による定期実行設定
+  まで一括で自動化されます。
+
+#### 注意事項
+
+- `PROJECT_ID`、`REGION`、`IMAGE_NAME`、`CRON_SCHEDULE` などはご自身の環境に合わせて変更してください。
+- 必要に応じてサービスアカウントに Cloud Run Job 実行権限を付与してください。
+
 ## 設定ファイルの詳細
 
 `config.json`の各設定項目について説明します：
