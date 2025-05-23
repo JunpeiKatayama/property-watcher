@@ -5,13 +5,13 @@ SUUMO から指定した条件に合致する新着物件情報を取得し、LI
 ## 機能概要
 
 - SUUMO ウェブサイトから物件情報をスクレイピング
-- JSON 形式で柔軟に検索条件を指定可能
+- JSON 形式で柔軟に検索条件を指定可能（SUUMO の仕様に依存）
 - 新着物件のみを LINE Messaging API を使用して通知
 - 定期実行可能なバッチシステム
 
 ## 必要環境
 
-- Java 17 以上
+- Java 21 以上
 - Kotlin 1.9.x
 - Gradle 8.x
 - LINE Developers アカウント（LINE Messaging API 用）
@@ -29,7 +29,7 @@ cd property_watcher
 
 1. [LINE Developers](https://developers.line.biz/)にアクセスし、新規プロバイダーとチャネルを作成
 2. Messaging API のチャネルアクセストークンを発行
-3. LINE のユーザー ID を取得（[公式アカウントとの 1:1 チャットを開始後、Webhook などでユーザー ID を取得](https://developers.line.biz/ja/docs/messaging-api/receiving-messages/#webhook-event-objects)）
+3. LINE のユーザー ID を取得（1:1 チャット開始後、Bot からのメッセージで取得可能）
 
 ### 3. 設定ファイルの作成
 
@@ -59,16 +59,16 @@ cp config.json.sample config.json
 ./gradlew run
 ```
 
-または、jar ファイルを直接実行：
+または、fat jar ファイルを直接実行：
 
 ```bash
-java -jar build/libs/property_watcher-1.0-SNAPSHOT.jar
+java -jar build/libs/property_watcher-1.0-SNAPSHOT-all.jar
 ```
 
 設定ファイルのパスを指定して実行：
 
 ```bash
-java -jar build/libs/property_watcher-1.0-SNAPSHOT.jar path/to/config.json
+java -jar build/libs/property_watcher-1.0-SNAPSHOT-all.jar path/to/config.json
 ```
 
 ### 定期実行
@@ -82,14 +82,14 @@ java -jar build/libs/property_watcher-1.0-SNAPSHOT.jar path/to/config.json
 3. タスクの名前と説明を入力
 4. トリガーを設定（毎日など）
 5. アクションとして「プログラムの開始」を選択
-6. プログラムのパスに`java`を、引数に`-jar "C:\path\to\property_watcher-1.0-SNAPSHOT.jar"`を設定
+6. プログラムのパスに`java`を、引数に`-jar "C:\path\to\property_watcher-1.0-SNAPSHOT-all.jar"`を設定
 
 #### Linux の場合（cron）
 
 cron に以下のような設定を追加します：
 
 ```
-0 9,21 * * * cd /path/to/property_watcher && java -jar build/libs/property_watcher-1.0-SNAPSHOT.jar
+0 9,21 * * * cd /path/to/property_watcher && java -jar build/libs/property_watcher-1.0-SNAPSHOT-all.jar
 ```
 
 ## GCP Cloud Run Jobs でのデプロイ・定期実行
@@ -118,51 +118,58 @@ Google Cloud Run Jobs と Cloud Scheduler を使って、バッチ処理をク�
 
 #### 注意事項
 
-- `PROJECT_ID`、`REGION`、`IMAGE_NAME`、`CRON_SCHEDULE` などはご自身の環境に合わせて変更してください。
+- `PROJECT_ID`、`REGION`、`IMAGE_NAME`、`CRON_SCHEDULE` などはご自身の環境に合わせて**必ず書き換えてください**。
 - 必要に応じてサービスアカウントに Cloud Run Job 実行権限を付与してください。
+- Dockerfile では `property_watcher-1.0-SNAPSHOT-all.jar` を使用しています。
 
 ## 設定ファイルの詳細
 
-`config.json`の各設定項目について説明します：
+`config.json` の各設定項目について説明します：
 
 ```json
 {
-  "searchConditions": [  // 検索条件（複数指定可能）
+  // 検索条件（複数指定可能）
+  "searchConditions": [
     {
-      "name": "検索条件の名前",
-      "prefecture": "都道府県名",
-      "city": "市区町村名",
-      "district": "町名",
-      "minRent": 最小賃料（万円）,
-      "maxRent": 最大賃料（万円）,
-      "layouts": ["1LDK", "2LDK"],  // 間取り
-      "maxWalkMinutes": 最大徒歩分数,
-      "maxAgeYears": 最大築年数,
-      "hasParking": true,  // 駐車場あり
-      "hasPetAllowed": true,  // ペット可
-      "otherConditions": {  // その他のSUUMO固有のパラメータ
-        "key": "value"
+      "name": "検索条件の名前", // 任意の条件名
+      "prefecture": "都道府県名", // 例: "埼玉県"
+      "city": "市区町村名", // 例: "鴻巣市"（省略可）
+      "district": "町名", // 例: "北新宿"（省略可）
+      "minRent": 6, // 最小賃料（万円, 省略可）
+      "maxRent": 8, // 最大賃料（万円, 省略可）
+      "layouts": ["1LDK", "2LDK"], // 間取り（省略可）
+      "maxWalkMinutes": 15, // 最大徒歩分数（省略可）
+      "maxAgeYears": 30, // 最大築年数（省略可）
+      "hasParking": true, // 駐車場あり（省略可）
+      "hasPetAllowed": true, // ペット可（省略可）
+      "otherConditions": {
+        // SUUMOのURLパラメータを直接指定（省略可）
+        "key": "value" // 例: "ek": "98287" など
       }
     }
   ],
-  "lineConfig": {  // LINE通知設定
-    "channelToken": "LINEチャネルアクセストークン",
-    "userId": "LINEユーザーID"
+  "lineConfig": {
+    // LINE通知設定
+    "channelToken": "LINEチャネルアクセストークン", // LINEチャネルアクセストークン
+    "userId": "LINEユーザーID" // LINEユーザーID
   },
-  "dataStorePath": "data",  // データ保存先ディレクトリ
-  "scheduleConfig": {  // スケジュール設定
-    "intervalHours": 12,  // 実行間隔（時間）
-    "startHour": 9,       // 開始時刻（時）
-    "startMinute": 0      // 開始時刻（分）
+  "dataStorePath": "data", // データ保存先ディレクトリ
+  "scheduleConfig": {
+    // スケジュール設定
+    "intervalHours": 12, // 実行間隔（時間）
+    "startHour": 9, // 開始時刻（時）
+    "startMinute": 0 // 開始時刻（分）
   }
 }
 ```
 
+> ※ `hasPetAllowed` や `hasParking` などは SUUMO の仕様変更で効かなくなる場合があります。
+> ※ `otherConditions` には SUUMO の URL パラメータ（例: `"ek": "98287"` など）を直接指定できます。
+> ※ district（町名）は省略可能です。
+
 ## 注意事項
 
-- SUUMO サイトのスクレイピングは利用規約に準拠した頻度で行ってください
-- LINE Messaging API の利用上限に注意してください
-
-## ライセンス
-
-[MIT License](LICENSE)
+- SUUMO サイトのスクレイピングは利用規約に準拠した頻度で行ってください。
+- LINE Messaging API の利用上限に注意してください。
+- サンプル設定のままでは LINE 通知は動作しません。必ずご自身の LINE チャネル情報を設定してください。
+- SUUMO の仕様変更により一部の検索条件が効かなくなる場合があります。
