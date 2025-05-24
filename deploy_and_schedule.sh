@@ -44,7 +44,7 @@ if gcloud scheduler jobs describe $SCHEDULER_NAME --location $REGION --project $
     --location $REGION \
     --schedule "$CRON_SCHEDULE" \
     --time-zone "$TIME_ZONE" \
-    --uri "https://$REGION-run.googleapis.com/apis/run.googleapis.com/v1/$JOB_RESOURCE:run" \
+    --uri "https://$REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$PROJECT_ID/jobs/$JOB_NAME:run" \
     --http-method POST \
     --project $PROJECT_ID
 else
@@ -53,7 +53,7 @@ else
     --location $REGION \
     --schedule "$CRON_SCHEDULE" \
     --time-zone "$TIME_ZONE" \
-    --uri "https://$REGION-run.googleapis.com/apis/run.googleapis.com/v1/$JOB_RESOURCE:run" \
+    --uri "https://$REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$PROJECT_ID/jobs/$JOB_NAME:run" \
     --http-method POST \
     --project $PROJECT_ID
 fi
